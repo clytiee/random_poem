@@ -6,6 +6,9 @@ export const DEFAULT_SETTINGS = {
   bg: 'none',           // 背景图 key，'none' 为无
   fontBody: '',         // 空 = 使用默认字体栈
   fontTitle: '',
+  fontSizeBody: 0,      // 0 = 按卡片档位自动
+  fontSizeTitle: 0,
+  excludeDays: 14,      // 最近 N 天出现过的诗不再随机到，0 = 不限
   align: 'center',      // 'center' | 'left'
   showNote: true,
   showMeta: true,
@@ -62,6 +65,19 @@ export async function pushHistory(item) {
   const trimmed = rest.slice(0, HISTORY_LIMIT);
   await set({ [KEYS.history]: trimmed });
   return trimmed;
+}
+
+/** 最近 days 天内出现过的诗 id 集合；days <= 0 时返回空集 */
+export function recentIds(history, days) {
+  const out = new Set();
+  const span = Number(days) || 0;
+  if (span <= 0) return out;
+  const cutoff = Date.now() - span * 24 * 60 * 60 * 1000;
+  for (const h of history) {
+    if (!h || !h.id) continue;
+    if (!h.ts || h.ts >= cutoff) out.add(h.id);
+  }
+  return out;
 }
 
 export async function getFavorites() {

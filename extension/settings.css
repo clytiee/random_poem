@@ -53,13 +53,34 @@ body {
   min-width: 160px;
 }
 .field.grow { flex: 1 1 200px; }
+.input-clear { position: relative; display: flex; }
+.input-clear input { width: 100%; padding-right: 30px; }
+.clear-btn {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 19px;
+  height: 19px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-faint);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+}
+.clear-btn:hover { background: var(--ui-hover); color: var(--ink); }
+.input-clear[data-filled="1"] .clear-btn { display: block; }
 .field > span {
   font-size: 12px;
   color: var(--ink-soft);
   letter-spacing: 0.06em;
 }
 
-select, input[type="text"], input[list], input:not([type]) {
+select, input[type="text"], input[list], input[type="number"], input:not([type]) {
   appearance: none;
   font-family: var(--font-ui);
   font-size: 13.5px;
@@ -146,17 +167,68 @@ select:focus, input:focus { border-color: var(--accent); }
 }
 .pv-title {
   font-family: var(--font-title);
-  font-size: 20px;
+  font-size: var(--fs-title-user, 20px);
   letter-spacing: 0.08em;
   margin-bottom: 10px;
 }
 .pv-body {
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: var(--fs-body-user, 15px);
   line-height: 1.95;
 }
 
 #font-status { margin-left: 4px; }
+
+/* 本机字体列表 */
+.font-field { margin-top: 14px; }
+.font-field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.font-list {
+  margin-top: 8px;
+  max-height: 340px;
+  overflow-y: auto;
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 60%, var(--ui-bg));
+}
+.font-item {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  width: 100%;
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ui-border) 55%, transparent);
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.font-item:last-child { border-bottom: 0; }
+.font-item:hover { background: var(--ui-hover); }
+.font-item[data-on="true"] { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.fx {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 19px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+}
+.fn {
+  flex: 0 1 auto;
+  max-width: 46%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
 
 .toast {
   position: fixed;

@@ -9,9 +9,19 @@ export function applyBodySettings(settings) {
   const dark = settings.darkMode === 'dark' ||
     (settings.darkMode === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
   body.dataset.mode = dark ? 'dark' : 'light';
+  // 同步到 html：内容不满一屏时，露出的画布底色也要跟着主题走
   const root = document.documentElement;
+  root.dataset.mode = body.dataset.mode;
+  root.dataset.style = body.dataset.style;
   root.style.setProperty('--font-body', settings.fontBody ? `"${settings.fontBody}", ${BASE_BODY_FONT}` : '');
   root.style.setProperty('--font-title', settings.fontTitle ? `"${settings.fontTitle}", ${BASE_TITLE_FONT}` : '');
+
+  // 用户字号：0 或空表示跟随卡片自适应档位
+  for (const [prop, value] of [['--fs-body-user', settings.fontSizeBody], ['--fs-title-user', settings.fontSizeTitle]]) {
+    const px = Number(value) || 0;
+    if (px > 0) root.style.setProperty(prop, `${px}px`);
+    else root.style.removeProperty(prop);
+  }
 }
 
 export function sizeOf(item) {
@@ -51,10 +61,13 @@ function build(card, item, settings, cap) {
   const paper = card.querySelector('.paper');
   paper.textContent = '';
 
+  const head = document.createElement('div');
+  head.className = 'head';
+
   const title = document.createElement('h1');
   title.className = 'title';
   title.textContent = item.title;
-  paper.appendChild(title);
+  head.appendChild(title);
 
   if (settings.showMeta !== false) {
     const byline = document.createElement('div');
@@ -64,8 +77,10 @@ function build(card, item, settings, cap) {
     if (item.dynasty) bits.push(item.dynasty);
     if (item.rhythmic && item.rhythmic !== item.title) bits.push(item.rhythmic);
     byline.textContent = bits.join(' · ');
-    paper.appendChild(byline);
+    head.appendChild(byline);
   }
+
+  paper.appendChild(head);
 
   const body = document.createElement('div');
   body.className = 'body';
@@ -78,13 +93,16 @@ function build(card, item, settings, cap) {
       body.appendChild(s);
     }
   }
+
+  // 横排：注释/题解放在标题与正文之间，展开时把正文往下推；竖排仍放列末
   paper.appendChild(body);
 
   if (item.note && settings.showNote !== false) {
     const note = document.createElement('div');
     note.className = 'note';
     note.textContent = item.note;
-    paper.appendChild(note);
+    if (settings.orient === 'v') paper.appendChild(note);
+    else paper.insertBefore(note, body);
     title.addEventListener('dblclick', () => note.classList.toggle('open'));
   }
 }
@@ -136,6 +154,92 @@ function fitColumns(card, maxWidth = 560) {
   }
 }
 
+/** 横排：单句宽过容器时，在句号处拆成多个可断行的小节 */
+function splitLongClauses(card) {
+  const body = card.querySelector('.body');
+  if (!body) return;
+  const avail = body.clientWidth;
+  if (!avail) return;
+
+  for (const el of [...body.querySelectorAll('.clause')]) {
+    if (el.getBoundingClientRect().width <= avail + 1) continue;
+
+    const pieces = [];
+    let buf = '';
+    for (const part of el.textContent.split(/([。！？])/)) {
+      if (!part) continue;
+      buf += part;
+      if (/[。！？]/.test(part)) { pieces.push(buf); buf = ''; }
+    }
+    if (buf) pieces.push(buf);
+    if (pieces.length < 2) continue;
+
+    const frag = document.createDocumentFragment();
+    for (const piece of pieces) {
+      const s = document.createElement('span');
+      s.className = 'clause';
+      s.textContent = piece;
+      frag.appendChild(s);
+    }
+    el.replaceWith(frag);
+  }
+}
+
+/** 横排：先压缩行距（最低 1.1），仍装不下就按整行裁切，末行补省略号 */
+function fitLinesH(card, maxHeight, minLh = 1.1) {
+  const paper = card.querySelector('.paper');
+  const body = paper.querySelector('.body');
+  if (!body) return false;
+
+  paper.style.height = '';
+  paper.style.maxHeight = `${maxHeight}px`;
+  paper.style.overflowY = '';
+  body.style.lineHeight = '';
+
+  const cs = getComputedStyle(body);
+  const fs = parseFloat(cs.fontSize) || 17;
+  let lh = parseFloat(cs.lineHeight) / fs;
+  if (!Number.isFinite(lh) || lh < minLh) lh = 1.95;
+
+  // 1) 压缩行距
+  while (paper.scrollHeight > maxHeight + 1 && lh > minLh) {
+    lh = Math.max(minLh, +(lh - 0.05).toFixed(2));
+    body.style.lineHeight = String(lh);
+  }
+
+  if (paper.scrollHeight <= maxHeight + 1) {
+    card.dataset.clippedY = '0';
+    return false;
+  }
+
+  // 2) 按行裁切：找出第一个整行落在可视区之外的位置
+  paper.style.overflow = 'hidden';
+  const clauses = [...body.querySelectorAll('.clause')];
+  if (!clauses.length) { card.dataset.clippedY = '0'; return false; }
+
+  const padB = parseFloat(getComputedStyle(paper).paddingBottom) || 0;
+  const limit = paper.getBoundingClientRect().bottom - padB + 0.5;
+
+  let cut = clauses.length;
+  for (let i = 0; i < clauses.length; i++) {
+    if (clauses[i].getBoundingClientRect().bottom > limit) { cut = i; break; }
+  }
+  if (cut < clauses.length) {
+    const top = clauses[cut].getBoundingClientRect().top;
+    while (cut > 0 && Math.abs(clauses[cut - 1].getBoundingClientRect().top - top) < 1) cut--;
+  }
+
+  const kept = clauses.slice(0, cut);
+  clauses.slice(cut).forEach(el => el.remove());
+  if (kept.length) {
+    const last = kept[kept.length - 1];
+    last.textContent = `${last.textContent}…`;
+  }
+
+  card.dataset.clippedY = '1';
+  return true;
+}
+
 export function renderPoem(card, item, settings, opts = {}) {
   card.dataset.orient = settings.orient;
   card.dataset.size = sizeOf(item);
@@ -143,6 +247,11 @@ export function renderPoem(card, item, settings, opts = {}) {
 
   const paperEl = card.querySelector('.paper');
   paperEl.style.width = '';
+  paperEl.style.height = '';
+  paperEl.style.maxHeight = '';
+  paperEl.style.overflow = '';
+  paperEl.style.overflowY = '';
+  card.dataset.clippedY = '0';
 
   build(card, item, settings, 0);
 
@@ -161,6 +270,13 @@ export function renderPoem(card, item, settings, opts = {}) {
       fitHeight(card, max);
       fitColumns(card, opts.maxWidth);
       card.dispatchEvent(new CustomEvent('poem:fitted', { bubbles: true, detail: { overflow } }));
+    });
+  } else {
+    requestAnimationFrame(() => {
+      const max = opts.maxHeight || 560;
+      splitLongClauses(card);
+      fitLinesH(card, max);
+      card.dispatchEvent(new CustomEvent('poem:fitted', { bubbles: true, detail: { overflow: false } }));
     });
   }
 

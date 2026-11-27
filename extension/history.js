@@ -28,22 +28,26 @@ function rowFor(item) {
   el.className = 'item';
   const t = document.createElement('div');
   t.className = 't';
-  t.textContent = item.title;
+
+  const tt = document.createElement('span');
+  tt.className = 'tt';
+  tt.textContent = item.title;
+
+  const b = document.createElement('span');
+  b.className = 'b';
+  b.textContent = [item.author, item.dynasty, item.collection].filter(Boolean).join(' · ');
 
   const time = document.createElement('span');
   time.className = 'time';
   time.textContent = item.ts ? formatTime(item.ts) : '';
-  t.appendChild(time);
 
-  const b = document.createElement('div');
-  b.className = 'b';
-  b.textContent = [item.author, item.dynasty, item.collection].filter(Boolean).join(' · ');
+  t.append(tt, b, time);
 
   const l = document.createElement('div');
   l.className = 'l';
   l.textContent = (item.lines || []).join(' ');
 
-  el.append(t, b, l);
+  el.append(t, l);
   el.addEventListener('click', () => {
     chrome.tabs.create({ url: chrome.runtime.getURL(`poem.html?id=${encodeURIComponent(item.id)}`) });
   });

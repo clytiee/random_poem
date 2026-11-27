@@ -62,6 +62,12 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* html 层拿不到 body 上的主题变量，单独给画布底色兜底 */
+html[data-mode="light"] { background-color: #faf6ec; }
+html[data-mode="light"][data-style="minimal"] { background-color: #ffffff; }
+html[data-mode="dark"] { background-color: #141413; }
+html[data-mode="dark"][data-style="minimal"] { background-color: #17171a; }
+
 /* ---------- 卡片 ---------- */
 .card {
   display: flex;
@@ -82,6 +88,9 @@ html, body {
 }
 
 .paper > * { flex: 0 0 auto; }
+
+/* 标题与作者默认各自成行（竖排、整页）；浮层横排改为同一行，见 popup.css */
+.head { display: contents; }
 
 /* 宣纸质感：纤维噪点 + 边缘暗角 */
 body[data-style="paper"] .paper::before {
@@ -122,6 +131,7 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
   font-family: var(--font-title);
   font-weight: 500;
   color: var(--ink);
+  font-size: var(--fs-title-user, 1em);
   line-height: 1.35;
   letter-spacing: 0.06em;
   text-align: var(--align, center);
@@ -137,9 +147,9 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
 }
 
 .body {
-  margin-top: 18px;
+  margin-top: 10px;
   font-family: var(--font-body);
-  font-size: var(--fs-body);
+  font-size: var(--fs-body-user, var(--fs-body));
   line-height: var(--lh-body);
   color: var(--ink);
   text-align: var(--align, center);
@@ -159,7 +169,6 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
 .note {
   margin-top: 16px;
   padding-top: 12px;
-  border-top: 1px solid var(--ui-border);
   font-family: var(--font-body);
   font-size: 12.5px;
   line-height: 1.85;
@@ -169,7 +178,11 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
   overflow: hidden;
   transition: max-height 0.25s ease;
 }
-.note.open { max-height: 260px; overflow-y: auto; }
+.note.open {
+  max-height: 260px;
+  overflow-y: auto;
+  border-top: 1px solid var(--ui-border);
+}
 
 /* 尺寸档位 */
 .card[data-size="s"] { --paper-h: 250px; --fs-body: 17px; }
@@ -189,7 +202,7 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
 }
 
 .card[data-orient="v"] .title {
-  font-size: 22px;
+  font-size: var(--fs-title-user, 22px);
   line-height: 1.5;
   margin: 0 0 0 14px;
   text-align: start;
@@ -205,7 +218,7 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
 
 .card[data-orient="v"] .body {
   margin: 0 0 0 22px;
-  font-size: 19px;
+  font-size: var(--fs-body-user, 19px);
   line-height: 2.15;
   text-align: start;
 }
@@ -226,5 +239,5 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
 .card[data-orient="h"] .paper {
   min-height: var(--paper-h);
   max-height: var(--paper-h);
-  overflow-y: auto;
+  overflow-y: hidden;
 }

@@ -5,7 +5,10 @@ body {
 body[data-orient="v"] {
   width: max-content;
   min-width: 210px;
-  max-width: 620px;
+  max-width: 760px;
+}
+body[data-orient="h"] {
+  max-width: 760px;
 }
 body[data-orient="v"] .card {
   width: max-content;
@@ -24,11 +27,64 @@ body[data-surface="popup"][data-orient="v"] .paper {
   border-radius: 0;
 }
 
-/* 右上角随机按钮，朱砂色 */
-.random-fab {
+/* 顶部工具条：左侧功能图标，右侧上一首 + 随机 */
+.top-tools {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.tools-left,
+.tools-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  pointer-events: auto;
+}
+/* 横排：顶部工具条铺满卡片顶边，沿用原来底部工具栏的底色 */
+body[data-surface="popup"][data-orient="h"] .top-tools {
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 6px;
+  background: var(--ui-bg);
+  border-bottom: 1px solid var(--ui-border);
+}
+.prev-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.82;
+  transition: opacity 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.prev-btn:hover { opacity: 1; background: color-mix(in srgb, var(--accent) 11%, transparent); }
+.prev-btn:active { transform: translateX(-1px); }
+.prev-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.random-fab {
+  position: static;
   z-index: 3;
   width: 26px;
   height: 26px;
@@ -59,8 +115,24 @@ body[data-surface="popup"][data-orient="v"] .paper {
   stroke-linejoin: round;
 }
 
-body[data-surface="popup"] .paper { padding: 30px 24px 20px; }
-body[data-surface="popup"][data-orient="v"] .paper { padding-right: 44px; }
+body[data-surface="popup"] .paper { padding: 42px 24px 20px; }
+body[data-surface="popup"][data-orient="v"] .paper { padding: 34px 44px 20px 34px; }
+/* 横排：作者跟在标题后面同一行 */
+body[data-surface="popup"][data-orient="h"] .paper { text-align: var(--align, center); }
+body[data-surface="popup"][data-orient="h"] .head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  justify-content: var(--align, center);
+}
+body[data-surface="popup"][data-orient="h"] .byline { margin: 0; }/* 竖排：左侧图标改竖排，落在纸面左留白里，不压正文 */
+body[data-surface="popup"][data-orient="v"] .tools-left {
+  flex-direction: column;
+  gap: 2px;
+}
+/* 竖排纸面窄，上一首会压到首列，只保留随机图标 */
+body[data-surface="popup"][data-orient="v"] .prev-btn { display: none; }
 
 /* 超宽被裁时：左侧渐隐（竖排向左溢出）+ 提示入口 */
 .clip-fade {
@@ -68,7 +140,7 @@ body[data-surface="popup"][data-orient="v"] .paper { padding-right: 44px; }
   top: 0;
   left: 0;
   right: auto;
-  bottom: 40px;
+  bottom: 0;
   width: 54px;
   z-index: 2;
   pointer-events: none;
@@ -79,7 +151,7 @@ body[data-surface="popup"][data-orient="v"] .paper { padding-right: 44px; }
   position: absolute;
   left: 10px;
   right: auto;
-  bottom: 46px;
+  bottom: 12px;
   z-index: 3;
   font-family: var(--font-ui);
   font-size: 11.5px;
@@ -96,21 +168,26 @@ body[data-surface="popup"][data-orient="v"] .paper { padding-right: 44px; }
 
 .card[data-clipped="1"] .paper { overflow-x: hidden; }
 
+/* 横排超高：底部渐隐 + 提示 */
+.clip-fade[data-dir="bottom"] {
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: 48px;
+  background: linear-gradient(to top, var(--surface) 80%, transparent);
+}
+.more-hint[data-dir="bottom"] {
+  left: 50%;
+  right: auto;
+  bottom: 12px;
+  transform: translateX(-50%);
+}
+
 .paper {
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: 0;
 }
-
-/* 动作栏 */
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 7px 6px;
-  background: var(--ui-bg);
-  width: 100%;
-}
-
-.spacer { flex: 1 1 auto; }
 
 .btn {
   appearance: none;
@@ -171,7 +248,7 @@ body[data-surface="popup"][data-orient="v"] .paper { padding-right: 44px; }
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 56px;
+  bottom: 18px;
   transform: translateX(-50%);
   background: color-mix(in srgb, var(--ink) 88%, transparent);
   color: var(--ui-bg);

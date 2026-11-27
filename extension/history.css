@@ -1,5 +1,6 @@
 body {
   background: var(--ui-bg);
+  min-height: 100vh;
 }
 
 .topbar {
@@ -73,18 +74,21 @@ body {
 .item:hover { border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
 
 .item .t {
-  font-size: 15px;
+  font-size: 18px;
   color: var(--ink);
   letter-spacing: 0.04em;
+  line-height: 1.5;
 }
+.item .tt { font-weight: 500; }
 .item .b {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-soft);
-  margin-top: 3px;
+  margin-left: 10px;
+  letter-spacing: 0.02em;
 }
 .item .l {
-  font-size: 12.5px;
-  color: var(--ink-faint);
+  font-size: 16px;
+  color: var(--ink-soft);
   margin-top: 6px;
   white-space: nowrap;
   overflow: hidden;

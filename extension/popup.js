@@ -1,11 +1,21 @@
-import { getSettings, getHistory, pushHistory, isFavorite, toggleFavorite } from './shared/store.js';
+import { getSettings, getHistory, pushHistory, isFavorite, toggleFavorite, recentIds } from './shared/store.js';
 import { loadIndex, pickPoem } from './shared/pick.js';
 import { applyBodySettings, renderPoem, plainText } from './shared/render.js';
 
 const card = document.getElementById('card');
 const toastEl = document.getElementById('toast');
 let settings, index, current;
+let cursor = 0;
 const seen = new Set();
+
+/** Chrome 弹窗上限 800×600；底部工具栏已并入顶部，高度放宽到 580 */
+const CARD_MAX_W = 760;
+const CARD_MAX_H = 580;
+
+function cardWidthH() {
+  const sw = window.screen?.availWidth || 1920;
+  return Math.min(CARD_MAX_W, Math.max(380, Math.round(sw * 0.26)));
+}
 
 function toast(text) {
   toastEl.textContent = text;
@@ -14,43 +24,63 @@ function toast(text) {
   toast._t = setTimeout(() => { toastEl.hidden = true; }, 1500);
 }
 
+async function paintCurrent(item, { push }) {
+  current = item;
+  seen.add(item.id);
+  const maxHeight = Math.min(Math.round((window.screen?.availHeight || 900) * 0.8), CARD_MAX_H);
+  if (settings.orient !== 'v') document.body.style.width = `${cardWidthH()}px`;
+  renderPoem(card, item, { ...settings, showNote: false }, { maxHeight, maxWidth: CARD_MAX_W });
+  if (push) await pushHistory(item);
+
+  card.querySelector('[data-act="fav"]').dataset.on = String(await isFavorite(item.id));
+  requestAnimationFrame(applyPopupWidth);
+}
+
 async function next() {
-  current = await pickPoem(index, settings, seen);
-  if (!current) {
+  const poem = await pickPoem(index, settings, seen);
+  if (!poem) {
     card.querySelector('.paper').innerHTML = '<div class="empty">诗库为空，请到设置里启用至少一个池</div>';
     return;
   }
-  seen.add(current.id);
-  const maxHeight = Math.min(Math.round((window.screen?.availHeight || 900) * 0.8), 560);
-  renderPoem(card, current, settings, { maxHeight, maxWidth: 620 });
-  await pushHistory(current);
-  card.querySelector('[data-act="note"]').hidden = !current.note;
-  card.querySelector('[data-act="fav"]').dataset.on = String(await isFavorite(current.id));
-  requestAnimationFrame(applyPopupWidth);
+  cursor = 0;
+  await paintCurrent(poem, { push: true });
+}
+
+/** 回看历史里更早的一首：不写入历史，只移动游标 */
+async function prev() {
+  const history = await getHistory();
+  const idx = cursor + 1;
+  if (idx >= history.length) { toast('已经是最早一首了'); return; }
+  cursor = idx;
+  await paintCurrent(history[idx], { push: false });
 }
 
 /** popup 尺寸由内容决定，显式量一次，避免短诗沿用上一首的宽度 */
 function applyPopupWidth() {
   const fade = document.getElementById('clip-fade');
   const hint = document.getElementById('more-hint');
+  const paper = card.querySelector('.paper');
 
   if (settings.orient !== 'v') {
-    document.body.style.width = '380px';
-    card.dataset.clipped = '0';
-    fade.hidden = true;
-    hint.hidden = true;
+    document.body.style.width = `${cardWidthH()}px`;
+    const clipped = card.dataset.clippedY === '1';
+    card.dataset.clipped = clipped ? '1' : '0';
+    fade.dataset.dir = 'bottom';
+    hint.dataset.dir = 'bottom';
+    fade.hidden = !clipped;
+    hint.hidden = !clipped;
     return;
   }
 
-  const paper = card.querySelector('.paper');
   const raw = paper.scrollWidth;
-  const MAX = 620;
-  const clipped = raw + 2 > 621;
-  const w = Math.min(Math.max(Math.ceil(raw) + 2, 210), MAX);
+  const clipped = raw + 2 > CARD_MAX_W + 1;
+  const w = Math.min(Math.max(Math.ceil(raw) + 2, 210), CARD_MAX_W);
 
   document.body.style.width = `${w}px`;
   paper.style.width = '100%';
   card.dataset.clipped = clipped ? '1' : '0';
+  fade.dataset.dir = 'left';
+  hint.dataset.dir = 'left';
   fade.hidden = !clipped;
   hint.hidden = !clipped;
 }
@@ -62,6 +92,8 @@ card.addEventListener('click', async (e) => {
 
   if (act === 'another') {
     await next();
+  } else if (act === 'prev') {
+    await prev();
   } else if (act === 'copy') {
     try {
       await navigator.clipboard.writeText(plainText(current));
@@ -75,10 +107,7 @@ card.addEventListener('click', async (e) => {
     toast(added ? '已收藏' : '已取消收藏');
   } else if (act === 'note') {
     const note = card.querySelector('.note');
-    if (note) {
-      const open = note.classList.toggle('open');
-      btn.textContent = open ? '收起' : '赏析';
-    }
+    if (note) note.classList.toggle('open');
   } else if (act === 'full') {    chrome.tabs.create({ url: chrome.runtime.getURL(`poem.html?id=${encodeURIComponent(current.id)}`) });
   } else if (act === 'history') {
     chrome.tabs.create({ url: chrome.runtime.getURL('history.html') });
@@ -97,16 +126,8 @@ card.addEventListener('click', async (e) => {
     return;
   }
   const history = await getHistory();
-  history.slice(0, 30).forEach(h => seen.add(h.id));
+  recentIds(history, settings.excludeDays).forEach(id => seen.add(id));
   await next();
-
-  // 正文用双击标题展开赏析时，同步按钮文案
-  card.addEventListener('dblclick', () => {
-    const note = card.querySelector('.note');
-    if (!note) return;
-    const btn = card.querySelector('[data-act="note"]');
-    btn.textContent = note.classList.contains('open') ? '收起' : '赏析';
-  });
 
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     if (settings.darkMode === 'auto') applyBodySettings(settings);

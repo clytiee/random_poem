@@ -17,6 +17,13 @@
       <h2>诗库</h2>
       <p class="hint">精选集默认启用。全唐诗、全宋词体积大、质量参差，开启后随机命中范围会明显变宽。</p>
       <div class="pool-list" id="pool-list"></div>
+      <div class="row">
+        <label class="field">
+          <span>不重复天数</span>
+          <input id="excludeDays" type="number" min="0" max="365" step="1">
+        </label>
+        <span class="hint">最近这些天里出现过的诗不再随机到，0 表示不限制</span>
+      </div>
     </section>
 
     <section class="block">
@@ -74,17 +81,41 @@
       <div class="row">
         <label class="field grow">
           <span>正文</span>
-          <input id="fontBody" list="font-options" placeholder="默认宋体">
+          <div class="input-clear">
+            <input id="fontBody" list="font-options" placeholder="默认宋体">
+            <button type="button" class="clear-btn" data-clear="fontBody" title="清除">×</button>
+          </div>
         </label>
         <label class="field grow">
           <span>标题</span>
-          <input id="fontTitle" list="font-options" placeholder="默认楷体">
+          <div class="input-clear">
+            <input id="fontTitle" list="font-options" placeholder="默认楷体">
+            <button type="button" class="clear-btn" data-clear="fontTitle" title="清除">×</button>
+          </div>
         </label>
         <datalist id="font-options"></datalist>
       </div>
       <div class="row">
+        <label class="field">
+          <span>正文字号</span>
+          <input id="fontSizeBody" type="number" min="10" max="48" step="1" placeholder="自动">
+        </label>
+        <label class="field">
+          <span>标题字号</span>
+          <input id="fontSizeTitle" type="number" min="10" max="64" step="1" placeholder="自动">
+        </label>
+        <span class="hint">留空为自动，由卡片尺寸决定</span>
+      </div>
+      <div class="row">
         <button class="btn" id="scan-fonts">扫描本机字体</button>
         <span class="hint" id="font-status"></span>
+      </div>
+      <div class="font-field">
+        <div class="font-field-head">
+          <span class="hint" id="font-target">应用到正文</span>
+          <span class="hint" id="font-sample"></span>
+        </div>
+        <div class="font-list" id="font-list" hidden></div>
       </div>
       <div class="preview" id="font-preview">
         <div class="pv-title">春江花月夜</div>
