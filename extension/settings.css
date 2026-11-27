@@ -46,6 +46,18 @@ body {
   margin-top: 12px;
 }
 
+/* 行内说明文字对齐到控件底部（输入框下沿），不要浮在行中部 */
+.row > .hint {
+  align-self: flex-end;
+}
+
+/* 行首小标签（如“截图”） */
+.row > .lead {
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -53,6 +65,9 @@ body {
   min-width: 160px;
 }
 .field.grow { flex: 1 1 200px; }
+
+/* 独立的字段块（如“背景”）不要贴着上面一行 */
+.block > .field { margin-top: 14px; }
 .input-clear { position: relative; display: flex; }
 .input-clear input { width: 100%; padding-right: 30px; }
 .clear-btn {

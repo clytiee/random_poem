@@ -21,11 +21,30 @@ body[data-surface="popup"][data-orient="v"] .paper {
   min-width: 0;
 }
 
+/* 浮层竖排：列多时横向滚动，竖向不滚 */
+body[data-surface="popup"][data-orient="v"] .paper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1 1 auto;
+  min-width: 0;
+  scrollbar-width: thin;
+}
+body[data-surface="popup"][data-orient="v"] {
+  overflow: hidden;
+}
+body[data-surface="popup"][data-orient="v"] .card {
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .card {
   position: relative;
   width: 100%;
   border-radius: 0;
 }
+
+/* 截图瞬间先藏起工具条 */
+.card[data-shot="1"] .top-tools { opacity: 0; }
 
 /* 顶部工具条：左侧功能图标，右侧上一首 + 随机 */
 .top-tools {
@@ -116,7 +135,8 @@ body[data-surface="popup"][data-orient="h"] .top-tools {
 }
 
 body[data-surface="popup"] .paper { padding: 42px 24px 20px; }
-body[data-surface="popup"][data-orient="v"] .paper { padding: 34px 44px 20px 34px; }
+body[data-surface="popup"][data-orient="v"] .paper { padding: 34px 44px 20px 44px; }
+body[data-surface="popup"][data-orient="v"] .body { margin-left: 0; }
 /* 横排：作者跟在标题后面同一行 */
 body[data-surface="popup"][data-orient="h"] .paper { text-align: var(--align, center); }
 body[data-surface="popup"][data-orient="h"] .head {

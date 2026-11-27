@@ -18,6 +18,27 @@ function toast(text) {
 const $ = id => document.getElementById(id);
 let settings;
 
+/** 纸面底色（CSS 里按 data-bg 定义，这里负责把选项渲染出来） */
+const BG_ITEMS = [
+  { key: 'none', label: '默认' },
+  { key: 'warm', label: '暖黄' },
+  { key: 'cool', label: '冷灰' },
+  { key: 'ink', label: '墨黑' },
+  { key: 'dusk', label: '暮色' },
+];
+
+function renderBgList() {
+  const list = $('bg-list');
+  if (!list || list.childElementCount) return;
+  for (const { key, label } of BG_ITEMS) {
+    const el = document.createElement('div');
+    el.className = 'bg-item';
+    el.dataset.bg = key;
+    el.textContent = label;
+    list.appendChild(el);
+  }
+}
+
 function setNum(id, value) {
   const el = $(id);
   if (document.activeElement === el) return;
@@ -36,6 +57,8 @@ function paint() {
   $('align').value = settings.align;
   $('style').value = settings.style;
   $('darkMode').value = settings.darkMode;
+  $('shotDownload').checked = settings.shotDownload !== false;
+  $('shotClipboard').checked = settings.shotClipboard === true;
   $('showMeta').checked = settings.showMeta !== false;
   $('showNote').checked = settings.showNote !== false;
   $('fontBody').value = settings.fontBody || '';
@@ -93,6 +116,7 @@ async function boot() {
     $('pool-list').textContent = '数据未构建，请先运行 npm run build';
   }
 
+  renderBgList();
   paint();
 
   const history = await getHistory();
@@ -111,6 +135,8 @@ async function boot() {
   }
   $('showMeta').addEventListener('change', e => update({ showMeta: e.target.checked }));
   $('showNote').addEventListener('change', e => update({ showNote: e.target.checked }));
+  $('shotDownload').addEventListener('change', e => update({ shotDownload: e.target.checked }));
+  $('shotClipboard').addEventListener('change', e => update({ shotClipboard: e.target.checked }));
 
   fontSample = await pickSampleLine();
   markFontTarget();

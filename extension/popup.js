@@ -55,28 +55,15 @@ async function prev() {
   await paintCurrent(history[idx], { push: false });
 }
 
-/** 竖排超宽：按可见列裁掉最左的溢出列，并在最后一列末尾补省略号 */
-function trimColumns(paper) {
-  const body = paper.querySelector('.body');
-  if (!body) return false;
-  const clauses = [...body.querySelectorAll('.clause')];
-  if (!clauses.length) return false;
+/** 竖排纸面在 max-content 状态下的真实宽度（含内边距，标题、作者、正文各列都算在内） */
+function naturalSpan(paper) {
+  return paper.getBoundingClientRect().width;
+}
 
-  const padL = parseFloat(getComputedStyle(paper).paddingLeft) || 0;
-  const limit = paper.getBoundingClientRect().left + padL + 0.5;
-
-  let keep = clauses.length;
-  for (let i = 0; i < clauses.length; i++) {
-    if (clauses[i].getBoundingClientRect().left < limit) { keep = i; break; }
-  }
-  if (keep >= clauses.length) return false;
-
-  clauses.slice(keep).forEach(el => el.remove());
-  if (keep > 0) {
-    const last = clauses[keep - 1];
-    last.textContent = `${last.textContent}…`;
-  }
-  return true;
+/** 竖排滚动时停在最右：vertical-rl 的滚动起点就在右侧，scrollLeft=0 即最右 */
+function stickToRight(paper) {
+  if (paper.scrollWidth <= paper.clientWidth) return;
+  paper.scrollLeft = 0;
 }
 
 /** popup 尺寸由内容决定，显式量一次，避免短诗沿用上一首的宽度 */
@@ -96,24 +83,119 @@ function applyPopupWidth() {
     return;
   }
 
+  // 先按纸面自然宽（max-content）量出真实占用；宽度顶到上限时先把竖排行距收到 1.65，
+  // 列随之变窄，还放不下再裁列
   paper.style.width = '';
-  let raw = paper.scrollWidth;
-
-  // 列距已收到极限仍超宽：临时撑满到上限，裁掉溢出的列
-  if (raw + 2 > CARD_MAX_W + 1) {
-    document.body.style.width = `${CARD_MAX_W}px`;
-    paper.style.width = '100%';
-    trimColumns(paper);
-    paper.style.width = '';
-    raw = paper.scrollWidth;
+  card.style.width = '';
+  let natural = naturalSpan(paper);
+  if (natural + 2 > CARD_MAX_W) {
+    paper.style.setProperty('--lh-v', '1.65');
+    natural = naturalSpan(paper);
+  } else {
+    paper.style.removeProperty('--lh-v');
   }
 
-  const w = Math.min(Math.max(Math.ceil(raw) + 2, 210), CARD_MAX_W);
+  const w = Math.min(Math.max(Math.ceil(natural) + 2, 210), CARD_MAX_W);
   document.body.style.width = `${w}px`;
+  // 卡片不能跟着正文自然宽跑，否则弹窗被撑宽、出现整页横向滚动条
+  card.style.width = `${w}px`;
+  card.style.minWidth = '0';
   paper.style.width = '100%';
+  // 列数过多不再省略：纸面固定在上限宽，横向可滚，滚动位置停在最右（正文从头开始）
+  stickToRight(paper);
+  requestAnimationFrame(() => stickToRight(paper));
+
   card.dataset.clipped = '0';
   fade.hidden = true;
   hint.hidden = true;
+}
+
+/** 把纸面逐字绘制到 canvas（只含纸面，不含任何按钮），再导出 PNG */
+async function saveImage() {
+  const paper = card.querySelector('.paper');
+
+  // 竖排内容会横向滚动，先把纸面临时展开到全文尺寸，否则只截到可见视口
+  const savedW = paper.style.width;
+  const savedOverflow = paper.style.overflowX;
+  const savedCardW = card.style.width;
+  paper.style.width = 'max-content';
+  paper.style.overflowX = 'visible';
+  card.style.width = 'max-content';
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  let rect = paper.getBoundingClientRect();
+  const restore = () => {
+    paper.style.width = savedW;
+    paper.style.overflowX = savedOverflow;
+    card.style.width = savedCardW;
+  };
+  if (rect.width < 2 || rect.height < 2) { restore(); return false; }
+
+  const dpr = window.devicePixelRatio || 1;
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  ctx.fillStyle = getComputedStyle(paper).backgroundColor || '#fff';
+  ctx.fillRect(0, 0, rect.width, rect.height);
+
+  const range = document.createRange();
+  const walker = document.createTreeWalker(paper, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode();
+  while (node) {
+    const text = node.nodeValue || '';
+    const parent = node.parentElement;
+    if (text.trim() && parent) {
+      const style = getComputedStyle(parent);
+      if (style.display !== 'none' && style.visibility !== 'hidden') {
+        ctx.fillStyle = style.color;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+        ctx.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        let pos = 0;
+        for (const ch of text) {
+          const len = ch.length;
+          if (ch !== '\n' && ch !== '\t' && ch !== ' ') {
+            range.setStart(node, pos);
+            range.setEnd(node, pos + len);
+            const r = range.getBoundingClientRect();
+            if (r.width > 0 && r.height > 0) {
+              ctx.fillText(ch, r.left - rect.left + r.width / 2, r.top - rect.top + r.height / 2);
+            }
+          }
+          pos += len;
+        }
+      }
+    }
+    node = walker.nextNode();
+  }
+  restore();
+
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+  if (!blob) throw new Error('画布导出为空');
+
+  const wantClip = settings.shotClipboard === true;
+  const wantDownload = settings.shotDownload !== false || !wantClip;
+  const done = [];
+
+  if (wantClip) {
+    if (!navigator.clipboard?.write) throw new Error('当前环境不支持写剪贴板');
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    done.push('已复制到剪贴板');
+  }
+
+  if (wantDownload) {
+    if (!chrome.downloads) throw new Error('缺少 downloads 权限，请重新加载扩展');
+    const url = URL.createObjectURL(blob);
+    const safe = String(current?.title || '诗文').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
+    await chrome.downloads.download({ url, filename: `诗文-${safe}.png`, saveAs: false });
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+    done.push('已保存图片');
+  }
+
+  return done.join('，');
 }
 
 card.addEventListener('click', async (e) => {
@@ -132,8 +214,17 @@ card.addEventListener('click', async (e) => {
     } catch {
       toast('复制失败');
     }
-  } else if (act === 'fav') {
-    const { added } = await toggleFavorite(current);
+  } else if (act === 'shot') {
+    card.dataset.shot = '1';
+    await new Promise(r => setTimeout(r, 80));
+    try {
+      const res = await saveImage();
+      toast(res || '截图失败');
+    } catch (err) {
+      toast(`截图失败：${String(err?.message || err).slice(0, 40)}`);
+    }
+    delete card.dataset.shot;
+  } else if (act === 'fav') {    const { added } = await toggleFavorite(current);
     btn.dataset.on = String(added);
     toast(added ? '已收藏' : '已取消收藏');
   } else if (act === 'note') {

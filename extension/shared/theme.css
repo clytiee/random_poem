@@ -210,7 +210,7 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
 }
 
 .card[data-orient="v"] .byline {
-  margin: 0 0 0 var(--col-gap, 0px);
+  margin: 0 0 0 calc(var(--col-gap, 0px) + 8px);
   padding-top: 0;
   font-size: 14px;
   align-self: flex-start;
@@ -219,7 +219,7 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
 .card[data-orient="v"] .body {
   margin: 0 0 0 22px;
   font-size: var(--fs-body-user, 19px);
-  line-height: 2.15;
+  line-height: var(--lh-v, 2.15);
   text-align: start;
 }
 

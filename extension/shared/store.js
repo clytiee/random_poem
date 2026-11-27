@@ -10,6 +10,8 @@ export const DEFAULT_SETTINGS = {
   fontSizeTitle: 0,
   excludeDays: 14,      // 最近 N 天出现过的诗不再随机到，0 = 不限
   align: 'center',      // 'center' | 'left'
+  shotDownload: true,    // 截图时保存 PNG 到下载目录
+  shotClipboard: false,  // 截图时同时复制到剪贴板
   showNote: true,
   showMeta: true,
 };

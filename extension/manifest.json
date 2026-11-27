@@ -3,7 +3,7 @@
   "name": "随机诗文",
   "version": "0.1.0",
   "description": "点一下图标，随机读一首古诗词。",
-  "permissions": ["storage", "unlimitedStorage"],
+  "permissions": ["storage", "unlimitedStorage", "downloads", "clipboardWrite"],
   "action": {
     "default_popup": "popup.html",
     "default_title": "随机一首"
