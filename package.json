@@ -1,0 +1,15 @@
+{
+  "name": "random_poem",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "随机诗文 · 浏览器插件",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:core": "node scripts/build.mjs --pool=core"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "opencc-js": "^1.4.2"
+  }
+}

@@ -1,0 +1,185 @@
+body {
+  width: 380px;
+  background: var(--ui-bg);
+}
+body[data-orient="v"] {
+  width: max-content;
+  min-width: 210px;
+  max-width: 620px;
+}
+body[data-orient="v"] .card {
+  width: max-content;
+  min-width: 210px;
+}
+
+/* popup 里先按内容量宽度，量完 JS 再把纸面撑满卡片 */
+body[data-surface="popup"][data-orient="v"] .paper {
+  width: max-content;
+  min-width: 0;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  border-radius: 0;
+}
+
+/* 右上角随机按钮，朱砂色 */
+.random-fab {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  opacity: 0.82;
+  transition: opacity 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.random-fab:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--accent) 11%, transparent);
+}
+.random-fab:active { transform: rotate(-12deg); }
+.random-fab svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body[data-surface="popup"] .paper { padding: 30px 24px 20px; }
+body[data-surface="popup"][data-orient="v"] .paper { padding-right: 44px; }
+
+/* 超宽被裁时：左侧渐隐（竖排向左溢出）+ 提示入口 */
+.clip-fade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: 40px;
+  width: 54px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to left, transparent, var(--surface) 82%);
+}
+
+.more-hint {
+  position: absolute;
+  left: 10px;
+  right: auto;
+  bottom: 46px;
+  z-index: 3;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+}
+.more-hint:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+
+.card[data-clipped="1"] .paper { overflow-x: hidden; }
+
+.paper {
+  border-bottom: 1px solid var(--ui-border);
+}
+
+/* 动作栏 */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 6px;
+  background: var(--ui-bg);
+  width: 100%;
+}
+
+.spacer { flex: 1 1 auto; }
+
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  padding: 6px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.btn:hover { background: var(--ui-hover); color: var(--ink); }
+.btn:active { transform: translateY(0.5px); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.btn.primary {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  font-weight: 500;
+  padding: 5px 10px;
+  font-size: 12.5px;
+}
+.btn.primary:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+
+.btn.icon {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 6px;
+}
+.btn.icon svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.btn.icon[data-on="true"] { color: var(--accent); }
+.btn.icon[data-on="true"] svg { fill: currentColor; fill-opacity: 0.18; }
+
+.empty {
+  color: var(--ink-faint);
+  font-size: 13px;
+  text-align: center;
+  padding: 30px 0;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 56px;
+  transform: translateX(-50%);
+  background: color-mix(in srgb, var(--ink) 88%, transparent);
+  color: var(--ui-bg);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  pointer-events: none;
+  animation: fadein 0.15s ease;
+}
+
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }

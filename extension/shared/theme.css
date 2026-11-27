@@ -1,0 +1,230 @@
+/* 随机诗文 · 共享主题层
+   维度：style(paper|minimal) × mode(light|dark) × orient(h|v) */
+
+:root {
+  --font-body: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+  --font-title: "Kaiti SC", "STKaiti", "KaiTi", "Noto Serif SC", "Songti SC", serif;
+  --font-ui: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+
+  --ink: #2a2620;
+  --ink-soft: #6d6356;
+  --ink-faint: #9a8f80;
+  --surface: #f5ecd8;
+  --surface-edge: #e6d8ba;
+  --accent: #8c2b22;
+  --ui-bg: #faf6ec;
+  --ui-border: rgba(120, 100, 70, 0.18);
+  --ui-hover: rgba(140, 110, 70, 0.09);
+
+  --fs-body: 17px;
+  --lh-body: 1.95;
+}
+
+/* 极简 */
+body[data-style="minimal"] {
+  --surface: #ffffff;
+  --surface-edge: #ececec;
+  --ink: #1d1d1f;
+  --ink-soft: #6e6e73;
+  --ink-faint: #a1a1a6;
+  --accent: #b03a2e;
+  --ui-bg: #ffffff;
+  --ui-border: rgba(0, 0, 0, 0.08);
+  --ui-hover: rgba(0, 0, 0, 0.04);
+}
+
+/* 深色 */
+body[data-mode="dark"] {
+  --ink: #e7dfcd;
+  --ink-soft: #a49b8a;
+  --ink-faint: #7b7367;
+  --surface: #1b1a17;
+  --surface-edge: #2a2823;
+  --accent: #c8705f;
+  --ui-bg: #141413;
+  --ui-border: rgba(255, 255, 255, 0.1);
+  --ui-hover: rgba(255, 255, 255, 0.06);
+}
+body[data-mode="dark"][data-style="minimal"] {
+  --surface: #17171a;
+  --surface-edge: #26262a;
+  --ink: #e8e8ea;
+  --ink-soft: #9a9aa0;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--ui-bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 卡片 ---------- */
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--ui-bg);
+}
+
+.paper {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 26px 24px 20px;
+  background-color: var(--surface);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.paper > * { flex: 0 0 auto; }
+
+/* 宣纸质感：纤维噪点 + 边缘暗角 */
+body[data-style="paper"] .paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  opacity: 0.16;
+}
+body[data-style="paper"] .paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, transparent 52%, rgba(122, 98, 62, 0.09) 100%);
+}
+body[data-mode="dark"][data-style="paper"] .paper::before { opacity: 0.22; mix-blend-mode: screen; }
+body[data-mode="dark"][data-style="paper"] .paper::after { background: radial-gradient(ellipse at 50% 45%, transparent 46%, rgba(0, 0, 0, 0.35) 100%); }
+
+/* 背景 */
+body[data-bg]:not([data-bg="none"]) .paper {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+body[data-bg="warm"] .paper { background-image: linear-gradient(158deg, #fcf4e0 0%, #f1e1c2 55%, #e7d3ac 100%); }
+body[data-bg="cool"] .paper { background-image: linear-gradient(158deg, #f0f3f2 0%, #e2e8e6 55%, #d4ddda 100%); }
+body[data-bg="ink"] .paper { background-image: linear-gradient(158deg, #54554f 0%, #2d2e29 55%, #1c1d19 100%); --ink: #eee7d6; --ink-soft: #c3baa6; --ink-faint: #9d947f; }
+body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 0%, #523830 55%, #34231f 100%); --ink: #f7ecdb; --ink-soft: #d9c3ae; --ink-faint: #b39983; }
+
+/* ---------- 文字 ---------- */
+.title {
+  margin: 0;
+  font-family: var(--font-title);
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.35;
+  letter-spacing: 0.06em;
+  text-align: var(--align, center);
+}
+
+.byline {
+  margin-top: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+  text-align: var(--align, center);
+}
+
+.body {
+  margin-top: 18px;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--ink);
+  text-align: var(--align, center);
+}
+
+.body p {
+  margin: 0;
+  text-indent: 0;
+}
+
+/* 分句：内部不折行，句末才是换行点；能并排就并排 */
+.body .clause {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.note {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ui-border);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  line-height: 1.85;
+  color: var(--ink-faint);
+  text-align: left;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+.note.open { max-height: 260px; overflow-y: auto; }
+
+/* 尺寸档位 */
+.card[data-size="s"] { --paper-h: 250px; --fs-body: 17px; }
+.card[data-size="m"] { --paper-h: 370px; --fs-body: 17px; }
+.card[data-size="l"] { --paper-h: 460px; --fs-body: 16px; }
+
+/* ---------- 竖排 ---------- */
+.card[data-orient="v"] .paper {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  justify-content: flex-start;
+  flex-direction: column;
+  overflow-x: auto;
+  overflow-y: auto;
+  height: var(--paper-h);
+  padding: 22px 24px 20px;
+}
+
+.card[data-orient="v"] .title {
+  font-size: 22px;
+  line-height: 1.5;
+  margin: 0 0 0 14px;
+  text-align: start;
+  writing-mode: vertical-rl;
+}
+
+.card[data-orient="v"] .byline {
+  margin: 0 0 0 6px;
+  padding-top: 6px;
+  font-size: 12px;
+  align-self: flex-start;
+}
+
+.card[data-orient="v"] .body {
+  margin: 0 0 0 22px;
+  font-size: 19px;
+  line-height: 2.15;
+  text-align: start;
+}
+
+.card[data-orient="v"] .body .clause {
+  display: block;
+  margin: 0 0 0 var(--col-gap, 0.9em);
+}
+
+.card[data-orient="v"] .note {
+  writing-mode: horizontal-tb;
+}
+
+/* 横排：兜底横向滚动，应对无标点的超长句 */
+.card[data-orient="h"] .paper { overflow-x: auto; }
+
+/* 横排最大高度约束交给容器 */
+.card[data-orient="h"] .paper {
+  min-height: var(--paper-h);
+  max-height: var(--paper-h);
+  overflow-y: auto;
+}

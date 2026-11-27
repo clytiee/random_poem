@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>随机诗文 · 设置</title>
+  <link rel="stylesheet" href="shared/theme.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <main class="wrap">
+    <header class="head">
+      <h1>设置</h1>
+      <p class="sub">改动即时生效，弹窗重开即可看到效果。</p>
+    </header>
+
+    <section class="block">
+      <h2>诗库</h2>
+      <p class="hint">精选集默认启用。全唐诗、全宋词体积大、质量参差，开启后随机命中范围会明显变宽。</p>
+      <div class="pool-list" id="pool-list"></div>
+    </section>
+
+    <section class="block">
+      <h2>排版</h2>
+      <div class="row">
+        <label class="field">
+          <span>方向</span>
+          <select id="orient">
+            <option value="v">竖排（古籍）</option>
+            <option value="h">横排</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>对齐</span>
+          <select id="align">
+            <option value="center">居中</option>
+            <option value="left">左对齐</option>
+          </select>
+        </label>
+      </div>
+      <div class="row">
+        <label class="check"><input type="checkbox" id="showMeta"> 显示作者朝代</label>
+        <label class="check"><input type="checkbox" id="showNote"> 默认显示赏析</label>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>外观</h2>
+      <div class="row">
+        <label class="field">
+          <span>风格</span>
+          <select id="style">
+            <option value="paper">宣纸</option>
+            <option value="minimal">极简</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>明暗</span>
+          <select id="darkMode">
+            <option value="auto">跟随系统</option>
+            <option value="light">浅色</option>
+            <option value="dark">深色</option>
+          </select>
+        </label>
+      </div>
+      <div class="field">
+        <span>背景</span>
+        <div class="bg-list" id="bg-list"></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>字体</h2>
+      <p class="hint">读取的是本机已安装字体，不会上传。首次扫描需在浏览器授权。</p>
+      <div class="row">
+        <label class="field grow">
+          <span>正文</span>
+          <input id="fontBody" list="font-options" placeholder="默认宋体">
+        </label>
+        <label class="field grow">
+          <span>标题</span>
+          <input id="fontTitle" list="font-options" placeholder="默认楷体">
+        </label>
+        <datalist id="font-options"></datalist>
+      </div>
+      <div class="row">
+        <button class="btn" id="scan-fonts">扫描本机字体</button>
+        <span class="hint" id="font-status"></span>
+      </div>
+      <div class="preview" id="font-preview">
+        <div class="pv-title">春江花月夜</div>
+        <div class="pv-body">春江潮水连海平，海上明月共潮生。<br>滟滟随波千万里，何处春江无月明。</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>历史</h2>
+      <div class="row">
+        <span class="hint" id="history-count">—</span>
+        <button class="btn danger" id="clear-history">清空历史</button>
+        <button class="btn" id="open-history">查看历史</button>
+      </div>
+    </section>
+
+    <div class="toast" id="toast" hidden></div>
+  </main>
+  <script type="module" src="settings.js"></script>
+</body>
+</html>

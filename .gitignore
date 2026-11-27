@@ -1,0 +1,5 @@
+node_modules/
+sources/
+.workbuddy/
+*.log
+.DS_Store

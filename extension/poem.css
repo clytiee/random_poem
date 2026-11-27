@@ -1,0 +1,113 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-bg);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.brand {
+  font-family: var(--font-title);
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn:hover { background: var(--ui-hover); color: var(--ink); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.btn.icon { width: 32px; height: 32px; padding: 0; }
+.btn.icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.btn.icon[data-on="true"] { color: var(--accent); }
+.btn.icon[data-on="true"] svg { fill: currentColor; fill-opacity: 0.18; }
+
+.stage {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5vh 4vw;
+}
+
+.card {
+  width: min(820px, 92vw);
+  min-height: 62vh;
+  border: 1px solid var(--surface-edge);
+  border-radius: 6px;
+  box-shadow: 0 18px 48px -28px rgba(60, 48, 30, 0.45);
+  overflow: hidden;
+}
+
+body[data-mode="dark"] .card { box-shadow: 0 18px 48px -28px rgba(0, 0, 0, 0.8); }
+
+.paper {
+  min-height: 62vh;
+  padding: 6vh 6vw;
+}
+
+/* 全页不设档位上限，完全随内容 */
+.card[data-size] { --paper-h: auto; }
+
+.card[data-orient="h"] .paper {
+  min-height: 62vh;
+  max-height: none;
+  overflow: visible;
+}
+
+.card[data-orient="v"] .paper {
+  height: 62vh;
+  overflow-x: auto;
+}
+
+.card[data-orient="v"][data-size] { --paper-h: 62vh; }
+
+.card[data-orient="v"] .title { font-size: 28px; margin-left: 18px; }
+.card[data-orient="v"] .body { font-size: 22px; margin-left: 28px; line-height: 2.2; }
+
+.card[data-orient="h"] .title { font-size: 28px; }
+.card[data-orient="h"] .body { font-size: 19px; line-height: 2.05; }
+
+.empty { color: var(--ink-faint); font-size: 13px; text-align: center; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%);
+  background: color-mix(in srgb, var(--ink) 88%, transparent);
+  color: var(--ui-bg);
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 14px;
+  pointer-events: none;
+}
