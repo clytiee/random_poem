@@ -133,23 +133,23 @@ function fitHeight(card, maxHeight) {
   const paper = card.querySelector('.paper');
   paper.style.height = 'auto';
   const natural = maxColumnHeight(paper);
-  paper.style.height = `${Math.min(Math.max(Math.ceil(natural), 180), maxHeight)}px`;
+  paper.style.height = `${Math.min(Math.max(Math.ceil(natural), 210), maxHeight)}px`;
 }
 
-/** 列数多、横向放不下时收紧列距（0.9em → 最低 0.08em） */
+/** 列数多、横向放不下时收紧列距（0 → 最低 -0.3em，行高留白足够） */
 function fitColumns(card, maxWidth = 560) {
   const paper = card.querySelector('.paper');
   const body = paper.querySelector('.body');
   if (!body) return;
   const clauses = body.querySelectorAll('.clause').length;
   const fs = parseFloat(getComputedStyle(body).fontSize) || 19;
-  let gap = 0.9;
+  let gap = 0;
   paper.style.setProperty('--col-gap', `${gap}em`);
   for (let i = 0; i < 4; i++) {
     const width = paper.scrollWidth;
     if (width <= maxWidth) break;
     const over = width - maxWidth;
-    gap = Math.max(0.08, gap - over / (fs * Math.max(clauses, 1)));
+    gap = Math.max(-0.3, gap - over / (fs * Math.max(clauses, 1)));
     paper.style.setProperty('--col-gap', `${gap}em`);
   }
 }

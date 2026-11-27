@@ -126,13 +126,31 @@ body[data-surface="popup"][data-orient="h"] .head {
   gap: 0 10px;
   justify-content: var(--align, center);
 }
-body[data-surface="popup"][data-orient="h"] .byline { margin: 0; }/* 竖排：左侧图标改竖排，落在纸面左留白里，不压正文 */
-body[data-surface="popup"][data-orient="v"] .tools-left {
+body[data-surface="popup"][data-orient="h"] .byline { margin: 0; }/* 竖排：工具整体贴右侧边，随机在上，5 个功能图标竖排在它下方 */
+body[data-surface="popup"][data-orient="v"] .top-tools {
+  top: 6px;
+  right: 6px;
+  left: auto;
   flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 6px;
+}
+body[data-surface="popup"][data-orient="v"] .tools-right {
+  order: 0;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 2px;
 }
-/* 竖排纸面窄，上一首会压到首列，只保留随机图标 */
-body[data-surface="popup"][data-orient="v"] .prev-btn { display: none; }
+body[data-surface="popup"][data-orient="v"] .random-fab { order: 0; }
+body[data-surface="popup"][data-orient="v"] .prev-btn { order: 1; }
+body[data-surface="popup"][data-orient="v"] .tools-left {
+  order: 1;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 2px;
+}
+/* 竖排纸面窄，工具全部竖成一列贴右，宽度 26px 落在右留白里 */
 
 /* 超宽被裁时：左侧渐隐（竖排向左溢出）+ 提示入口 */
 .clip-fade {

@@ -55,6 +55,30 @@ async function prev() {
   await paintCurrent(history[idx], { push: false });
 }
 
+/** 竖排超宽：按可见列裁掉最左的溢出列，并在最后一列末尾补省略号 */
+function trimColumns(paper) {
+  const body = paper.querySelector('.body');
+  if (!body) return false;
+  const clauses = [...body.querySelectorAll('.clause')];
+  if (!clauses.length) return false;
+
+  const padL = parseFloat(getComputedStyle(paper).paddingLeft) || 0;
+  const limit = paper.getBoundingClientRect().left + padL + 0.5;
+
+  let keep = clauses.length;
+  for (let i = 0; i < clauses.length; i++) {
+    if (clauses[i].getBoundingClientRect().left < limit) { keep = i; break; }
+  }
+  if (keep >= clauses.length) return false;
+
+  clauses.slice(keep).forEach(el => el.remove());
+  if (keep > 0) {
+    const last = clauses[keep - 1];
+    last.textContent = `${last.textContent}…`;
+  }
+  return true;
+}
+
 /** popup 尺寸由内容决定，显式量一次，避免短诗沿用上一首的宽度 */
 function applyPopupWidth() {
   const fade = document.getElementById('clip-fade');
@@ -72,17 +96,24 @@ function applyPopupWidth() {
     return;
   }
 
-  const raw = paper.scrollWidth;
-  const clipped = raw + 2 > CARD_MAX_W + 1;
-  const w = Math.min(Math.max(Math.ceil(raw) + 2, 210), CARD_MAX_W);
+  paper.style.width = '';
+  let raw = paper.scrollWidth;
 
+  // 列距已收到极限仍超宽：临时撑满到上限，裁掉溢出的列
+  if (raw + 2 > CARD_MAX_W + 1) {
+    document.body.style.width = `${CARD_MAX_W}px`;
+    paper.style.width = '100%';
+    trimColumns(paper);
+    paper.style.width = '';
+    raw = paper.scrollWidth;
+  }
+
+  const w = Math.min(Math.max(Math.ceil(raw) + 2, 210), CARD_MAX_W);
   document.body.style.width = `${w}px`;
   paper.style.width = '100%';
-  card.dataset.clipped = clipped ? '1' : '0';
-  fade.dataset.dir = 'left';
-  hint.dataset.dir = 'left';
-  fade.hidden = !clipped;
-  hint.hidden = !clipped;
+  card.dataset.clipped = '0';
+  fade.hidden = true;
+  hint.hidden = true;
 }
 
 card.addEventListener('click', async (e) => {
