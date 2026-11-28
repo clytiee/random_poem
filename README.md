@@ -2,6 +2,21 @@
 
 点一下工具栏图标，随机读一首古诗词。宣纸质感、竖排古籍、本机字体、深色夜读，都是可调的。
 
+## 截图
+
+### 整页模式
+<img width="2588" height="1888" alt="image" src="https://github.com/user-attachments/assets/05dbce3a-12c8-4b64-b008-12ab686ccd52" />
+
+### 图标弹窗模式
+<img width="746" height="735" alt="image" src="https://github.com/user-attachments/assets/45d053a2-3418-4354-a11c-92240f7b86b7" />
+
+### 设置
+<img width="1520" height="1561" alt="image" src="https://github.com/user-attachments/assets/cb0b1746-004b-4898-b628-c951689c0f2e" />
+<img width="1480" height="1888" alt="image" src="https://github.com/user-attachments/assets/1a118425-96f2-416d-bd50-c24a7f61d06c" />
+
+### 历史记录
+<img width="2588" height="1888" alt="image" src="https://github.com/user-attachments/assets/1dd7019e-8114-435e-a8d2-ff710b8a0de0" />
+
 ## 目录
 
 ```
