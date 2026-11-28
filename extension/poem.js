@@ -1,6 +1,6 @@
 import { getSettings, getHistory, pushHistory, isFavorite, toggleFavorite, saveSettings } from './shared/store.js';
 import { loadIndex, pickPoem, findById } from './shared/pick.js';
-import { applyBodySettings, renderPoem, plainText } from './shared/render.js';
+import { applyBodySettings, renderPoem, plainText, layoutFor } from './shared/render.js';
 import { shootPaper } from './shared/shot.js';
 
 const card = document.getElementById('card');
@@ -12,6 +12,14 @@ let settings, index, current;
 let cursor = 0;
 const seen = new Set();
 
+// 逗号断行只对当前这一首生效，换诗/回看都回到关闭
+let commaBreak = false;
+let paintedId = null;
+function syncCommaBreak() {
+  document.querySelector('[data-act="comma"]').dataset.on = String(commaBreak);
+  document.body.dataset.break = commaBreak ? 'comma' : '';
+}
+
 function toast(text) {
   toastEl.textContent = text;
   toastEl.hidden = false;
@@ -19,17 +27,25 @@ function toast(text) {
   toast._t = setTimeout(() => { toastEl.hidden = true; }, 1500);
 }
 
+function syncNoteBtn() {
+  const noteBtn = document.querySelector('[data-act="note"]');
+  const noteEl = card.querySelector('.note');
+  const noteOpen = Boolean(noteEl && noteEl.classList.contains('open'));
+  noteBtn.hidden = !noteEl;              // 没渲染出赏析就不给按钮
+  noteBtn.textContent = noteOpen ? '收起' : '赏析';
+  noteBtn.dataset.on = String(noteOpen);
+}
+
 function paint(item, { push }) {
+  if (item.id !== paintedId) { commaBreak = false; paintedId = item.id; }
   current = item;
   seen.add(item.id);
-  renderPoem(card, item, settings, {
+  syncCommaBreak();
+  renderPoem(card, item, { ...layoutFor(settings, 'full'), breakComma: commaBreak }, {
     maxHeight: Math.round(window.innerHeight * 0.76),
     maxWidth: Math.round(window.innerWidth * 0.88),
   });
-  const noteBtn = document.querySelector('[data-act="note"]');
-  noteBtn.hidden = !item.note;
-  noteBtn.textContent = '赏析';
-  noteBtn.dataset.on = 'false';
+  syncNoteBtn();
   isFavorite(item.id).then(v => { document.querySelector('[data-act="fav"]').dataset.on = String(v); });
   if (push) {
     cursor = 0;
@@ -170,6 +186,9 @@ document.addEventListener('click', e => {
   togglePanel(false);
 });
 
+// 双击标题也会展开/收起赏析，同步按钮文案与开启态
+card.addEventListener('dblclick', () => setTimeout(syncNoteBtn, 0));
+
 document.querySelector('.top-actions').addEventListener('click', async (e) => {
   const btn = e.target.closest('button');
   if (!btn || !current) return;
@@ -190,6 +209,10 @@ document.querySelector('.top-actions').addEventListener('click', async (e) => {
     const open = note.classList.toggle('open');
     btn.textContent = open ? '收起' : '赏析';
     btn.dataset.on = String(open);
+  } else if (act === 'comma') {
+    commaBreak = !commaBreak;
+    syncCommaBreak();
+    paint(current, { push: false });
   } else if (act === 'shot') {
     try {
       const res = await shootPaper(card, current.title, settings);

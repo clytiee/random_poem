@@ -44,7 +44,17 @@ body {
   align-items: center;
   justify-content: center;
 }
+/* 逗号断行按钮：直接用逗号字符当图标，字形比手画 SVG 准确 */
+.btn.icon .comma-glyph {
+  font-family: var(--font-body);
+  font-size: 20px;
+  line-height: 1;
+  transform: translateY(-3px);   /* 逗号在基线下，抬高一点看起来居中 */
+}
+
 .btn:hover { background: var(--ui-hover); color: var(--ink); }
+/* hidden 属性会被上面的 display:inline-flex 覆盖，单独兜底 */
+.btn[hidden] { display: none; }
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .btn.icon { width: 32px; height: 32px; padding: 0; }
 .btn.icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }

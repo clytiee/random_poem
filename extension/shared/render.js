@@ -6,7 +6,7 @@ const LAYOUT_FIELDS = ['fontBody', 'fontTitle', 'fontSizeBody', 'fontSizeTitle',
 const fullKeyOf = k => 'full' + k[0].toUpperCase() + k.slice(1);
 
 /** 整页（展开模式）可独立设版式，未单独设过的字段回落到全局默认 */
-function layoutFor(settings, surface) {
+export function layoutFor(settings, surface) {
   if (surface !== 'full') return settings;
   const out = { ...settings };
   for (const k of LAYOUT_FIELDS) {
@@ -25,6 +25,7 @@ export function applyBodySettings(settings, surface = 'global') {
   body.dataset.orient = settings.orient || 'v';
   body.dataset.bg = settings.bg || 'none';
   body.dataset.vAlign = settings.vAlign === 'center' ? 'center' : 'start';
+  body.dataset.break = settings.breakComma ? 'comma' : '';
   const dark = settings.darkMode === 'dark' ||
     (settings.darkMode === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
   body.dataset.mode = dark ? 'dark' : 'light';
@@ -124,7 +125,12 @@ function build(card, item, settings, cap) {
   body.className = 'body';
   const groups = Array.isArray(item.stanzas) && item.stanzas.length ? item.stanzas : item.lines.map(l => [l]);
   for (const group of groups) {
-    for (const seg of wrapStanza(group.join(''), cap)) {
+    const text = group.join('');
+    // 逗号换行：每个逗号后另起一行/列（应对部分诗词标点不规整的情况）
+    const segs = settings.breakComma
+      ? text.split(/(?<=，)/).flatMap(part => wrapStanza(part.trim(), cap)).filter(Boolean)
+      : wrapStanza(text, cap);
+    for (const seg of segs) {
       const s = document.createElement('span');
       s.className = 'clause';
       s.textContent = seg;
@@ -135,10 +141,11 @@ function build(card, item, settings, cap) {
   // 横排：注释/题解放在标题与正文之间，展开时把正文往下推；竖排仍放列末
   piece.appendChild(body);
 
-  if (item.note && settings.showNote !== false) {
+  if (item.note) {
     const note = document.createElement('div');
     note.className = 'note';
     note.textContent = item.note;
+    if (settings.showNote !== false) note.classList.add('open');
     if (settings.orient === 'v') paper.appendChild(note);
     else piece.insertBefore(note, body);
     title.addEventListener('dblclick', () => note.classList.toggle('open'));

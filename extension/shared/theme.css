@@ -281,6 +281,9 @@ body[data-v-align="center"] .card[data-orient="v"] .paper > .piece {
 /* 横排：兜底横向滚动，应对无标点的超长句 */
 .card[data-orient="h"] .paper { overflow-x: auto; }
 
+/* 逗号换行：横排里每个逗号段独占一行（竖排列本身一段，无需额外规则） */
+body[data-break="comma"] .card[data-orient="h"] .body .clause { display: block; }
+
 /* 横排最大高度约束交给容器 */
 .card[data-orient="h"] .paper {
   min-height: var(--paper-h);

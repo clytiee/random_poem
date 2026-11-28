@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "builtAt": "2026-11-28T08:37:11.250Z",
+  "builtAt": "2026-11-28T09:10:57.621Z",
   "shardSize": 200,
-  "total": 81425,
+  "total": 82670,
   "pools": [
     {
       "key": "core",
       "label": "精选集",
       "enabled": true,
-      "count": 1299,
+      "count": 2544,
       "shards": [
         "core/shard-000.ndjson",
         "core/shard-001.ndjson",
@@ -16,7 +16,13 @@
         "core/shard-003.ndjson",
         "core/shard-004.ndjson",
         "core/shard-005.ndjson",
-        "core/shard-006.ndjson"
+        "core/shard-006.ndjson",
+        "core/shard-007.ndjson",
+        "core/shard-008.ndjson",
+        "core/shard-009.ndjson",
+        "core/shard-010.ndjson",
+        "core/shard-011.ndjson",
+        "core/shard-012.ndjson"
       ],
       "collections": {
         "唐诗三百首": 363,
@@ -24,7 +30,9 @@
         "千家诗": 204,
         "诗经": 293,
         "楚辞": 53,
-        "水墨唐诗": 106
+        "水墨唐诗": 106,
+        "绝妙好词": 278,
+        "名家名篇": 967
       }
     },
     {
