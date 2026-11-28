@@ -1,15 +1,34 @@
 export const DEFAULT_SETTINGS = {
-  pools: { core: true, tang: false, songci: false },
+  pools: {
+    core: true,
+    tang: false,
+    songci: false,
+    su_shi: true,
+    ouyang_xiu: true,
+    xin_qiji: true,
+    yan_jidao: true,
+    wu_wenying: true,
+  },
   orient: 'v',          // 'h' 横排 | 'v' 竖排
   style: 'paper',       // 'paper' 宣纸 | 'minimal' 极简
   darkMode: 'auto',     // 'auto' 跟随系统 | 'light' | 'dark'
   bg: 'none',           // 背景图 key，'none' 为无
+  bgImage: '',          // 自定义背景图（dataURL），空为无
   fontBody: '',         // 空 = 使用默认字体栈
   fontTitle: '',
   fontSizeBody: 0,      // 0 = 按卡片档位自动
   fontSizeTitle: 0,
+  lineHeight: 0,         // 正文行高，0 = 按版式默认（竖排 2.2 / 横排 2.05）
   excludeDays: 14,      // 最近 N 天出现过的诗不再随机到，0 = 不限
   align: 'center',      // 'center' | 'left'
+  vAlign: 'start',      // 竖排整块的垂直对齐：'start' 靠上 | 'center' 垂直居中
+  // 整页（展开模式）独立的版式：留空 = 跟随上面这组全局默认
+  fullFontBody: '',
+  fullFontTitle: '',
+  fullFontSizeBody: 0,
+  fullFontSizeTitle: 0,
+  fullLineHeight: 0,
+  fullVAlign: '',
   shotDownload: true,    // 截图时保存 PNG 到下载目录
   shotClipboard: false,  // 截图时同时复制到剪贴板
   showNote: true,

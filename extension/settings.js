@@ -55,6 +55,7 @@ function paint() {
   applyBodySettings(settings);
   $('orient').value = settings.orient;
   $('align').value = settings.align;
+  $('vAlign').value = settings.vAlign || 'start';
   $('style').value = settings.style;
   $('darkMode').value = settings.darkMode;
   $('shotDownload').checked = settings.shotDownload !== false;
@@ -65,6 +66,11 @@ function paint() {
   $('fontTitle').value = settings.fontTitle || '';
   setNum('fontSizeBody', settings.fontSizeBody);
   setNum('fontSizeTitle', settings.fontSizeTitle);
+  {
+    const lh = Number(settings.lineHeight) || 0;
+    const text = lh > 0 ? String(lh) : '';
+    if (document.activeElement !== $('lineHeight') && $('lineHeight').value !== text) $('lineHeight').value = text;
+  }
   if (document.activeElement !== $('excludeDays')) {
     $('excludeDays').value = String(Number(settings.excludeDays) || 0);
   }
@@ -77,6 +83,43 @@ function paint() {
   paintFontVariables();
   syncClear('fontBody');
   syncClear('fontTitle');
+  paintBgPreview();
+}
+
+/** 自定义背景图的预览与移除按钮状态 */
+function paintBgPreview() {
+  const preview = $('bg-preview');
+  const status = $('bg-file-status');
+  const remove = $('bg-remove');
+  const has = !!settings.bgImage;
+  preview.hidden = !has;
+  remove.hidden = !has;
+  if (has) preview.style.backgroundImage = `url("${settings.bgImage}")`;
+  else preview.style.backgroundImage = '';
+  if (status) status.textContent = has ? '已设置' : '未选择';
+}
+
+/** 读本地图片并按最长边压缩，避免几 MB 的图塞进存储 */
+async function compressImage(file, maxEdge = 1600, quality = 0.85) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error('图片读取失败'));
+      el.src = url;
+    });
+    const scale = Math.min(1, maxEdge / Math.max(img.naturalWidth, img.naturalHeight));
+    const w = Math.max(1, Math.round(img.naturalWidth * scale));
+    const h = Math.max(1, Math.round(img.naturalHeight * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL('image/webp', quality);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 function paintFontVariables() {
@@ -130,7 +173,7 @@ async function boot() {
     update({ pools: { [key]: e.target.checked } });
   });
 
-  for (const [id, key] of [['orient', 'orient'], ['align', 'align'], ['style', 'style'], ['darkMode', 'darkMode']]) {
+  for (const [id, key] of [['orient', 'orient'], ['align', 'align'], ['vAlign', 'vAlign'], ['style', 'style'], ['darkMode', 'darkMode']]) {
     $(id).addEventListener('change', e => update({ [key]: e.target.value }));
   }
   $('showMeta').addEventListener('change', e => update({ showMeta: e.target.checked }));
@@ -173,6 +216,26 @@ async function boot() {
     el.addEventListener('click', () => update({ bg: el.dataset.bg }));
   });
 
+  $('bg-file').addEventListener('change', async e => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    $('bg-file-status').textContent = '处理中…';
+    try {
+      const dataUrl = await compressImage(file);
+      await update({ bgImage: dataUrl });
+      toast('背景图已设置');
+    } catch (err) {
+      $('bg-file-status').textContent = '设置失败';
+      toast(String(err?.message || err).slice(0, 30));
+    }
+    e.target.value = '';
+  });
+
+  $('bg-remove').addEventListener('click', async () => {
+    await update({ bgImage: '' });
+    toast('已移除背景图');
+  });
+
   for (const [id, min, max] of [['fontSizeBody', 10, 48], ['fontSizeTitle', 10, 64]]) {    const clamp = raw => Math.max(min, Math.min(max, Math.round(Number(raw))));
     $(id).addEventListener('input', e => {
       const raw = e.target.value.trim();
@@ -189,6 +252,35 @@ async function boot() {
       update({ [id]: v });
     });
   }
+
+  const lhOf = raw => {
+    const n = Number(String(raw).trim());
+    if (!Number.isFinite(n) || n <= 0) return 0;
+    return Math.max(1.2, Math.min(3, Math.round(n * 10) / 10));
+  };
+  const lhInput = $('lineHeight');
+  let lhEmpty = true;
+  const defaultLh = () => (settings.orient === 'h' ? 2.05 : 2.2);
+  lhInput.addEventListener('focus', () => { lhEmpty = !lhInput.value.trim(); });
+  lhInput.addEventListener('input', e => {
+    const raw = e.target.value.trim();
+    if (!raw) { update({ lineHeight: 0 }); return; }
+    // 空值时点上下箭头会从 min 起步，这里先落到当前版式的默认行高
+    if (lhEmpty) {
+      lhEmpty = false;
+      const v = lhOf(String(defaultLh()));
+      e.target.value = String(v);
+      update({ lineHeight: v });
+      return;
+    }
+    update({ lineHeight: lhOf(raw) });
+  });
+  lhInput.addEventListener('blur', e => {
+    const v = lhOf(e.target.value);
+    e.target.value = v > 0 ? String(v) : '';
+    update({ lineHeight: v });
+    lhEmpty = true;
+  });
 
   const daysOf = raw => (raw === '' ? 14 : Math.max(0, Math.min(365, Math.round(Number(raw) || 0))));
   $('excludeDays').addEventListener('input', e => update({ excludeDays: daysOf(e.target.value.trim()) }));

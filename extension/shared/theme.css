@@ -120,6 +120,14 @@ body[data-bg]:not([data-bg="none"]) .paper {
   background-position: center;
   background-repeat: no-repeat;
 }
+
+/* 自定义背景图：压在纯色/渐变背景之上 */
+body[data-bg-image="1"][data-bg] .paper {
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 body[data-bg="warm"] .paper { background-image: linear-gradient(158deg, #fcf4e0 0%, #f1e1c2 55%, #e7d3ac 100%); }
 body[data-bg="cool"] .paper { background-image: linear-gradient(158deg, #f0f3f2 0%, #e2e8e6 55%, #d4ddda 100%); }
 body[data-bg="ink"] .paper { background-image: linear-gradient(158deg, #54554f 0%, #2d2e29 55%, #1c1d19 100%); --ink: #eee7d6; --ink-soft: #c3baa6; --ink-faint: #9d947f; }
@@ -184,6 +192,35 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
   border-top: 1px solid var(--ui-border);
 }
 
+/* 竖排里赏析是横排块：展开时浮在左下角的独立卡片，不占列宽、不撑宽纸张 */
+.card[data-orient="v"] .note {
+  writing-mode: horizontal-tb;
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 3;
+  width: 0;
+  max-width: min(26em, 46vw);
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 12px 34px -18px rgba(50, 40, 26, 0.55);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.card[data-orient="v"] .note.open {
+  width: min(26em, 46vw);
+  max-height: 42vh;
+  padding: 12px 16px;
+  border: 1px solid var(--ui-border);
+  overflow-y: auto;
+  opacity: 1;
+}
+
 /* 尺寸档位 */
 .card[data-size="s"] { --paper-h: 250px; --fs-body: 17px; }
 .card[data-size="m"] { --paper-h: 370px; --fs-body: 17px; }
@@ -198,7 +235,20 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
   overflow-x: auto;
   overflow-y: auto;
   height: var(--paper-h);
-  padding: 22px 24px 20px;
+  padding: 22px 24px 22px;
+}
+
+/* 文字块容器：默认不生成盒子（等价旧结构），竖排垂直居中时作为整块参与对齐 */
+.piece { display: contents; }
+
+/* 竖排垂直居中：整块文字在纸面里上下居中，块内各列仍从顶部起排、水平方向仍靠右 */
+body[data-v-align="center"] .card[data-orient="v"] .paper {
+  align-items: center;
+}
+body[data-v-align="center"] .card[data-orient="v"] .paper > .piece {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .card[data-orient="v"] .title {
@@ -219,17 +269,13 @@ body[data-bg="dusk"] .paper { background-image: linear-gradient(158deg, #82594b 
 .card[data-orient="v"] .body {
   margin: 0 0 0 22px;
   font-size: var(--fs-body-user, 19px);
-  line-height: var(--lh-v, 2.15);
+  line-height: var(--lh-v, var(--lh-body-user, 2.15));
   text-align: start;
 }
 
 .card[data-orient="v"] .body .clause {
   display: block;
   margin: 0 0 0 var(--col-gap, 0px);
-}
-
-.card[data-orient="v"] .note {
-  writing-mode: horizontal-tb;
 }
 
 /* 横排：兜底横向滚动，应对无标点的超长句 */

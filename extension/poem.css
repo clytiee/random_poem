@@ -51,6 +51,71 @@ body {
 .btn.icon[data-on="true"] { color: var(--accent); }
 .btn.icon[data-on="true"] svg { fill: currentColor; fill-opacity: 0.18; }
 
+/* 文字按钮的开启态（如赏析展开）：淡底色 + 描边 */
+.btn[data-on="true"] {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* 版式浮层 */
+.topbar { position: relative; }
+.layout-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 18px;
+  width: 274px;
+  padding: 14px 16px 12px;
+  background: var(--surface);
+  border: 1px solid var(--ui-border);
+  border-radius: 10px;
+  box-shadow: 0 16px 40px -20px rgba(50, 40, 26, 0.5);
+  z-index: 20;
+  font-family: var(--font-ui);
+}
+.layout-panel[hidden] { display: none; }
+.lp-head {
+  font-size: 13px;
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+.lp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 9px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.lp-row input {
+  width: 132px;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 5px 8px;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  background: var(--ui-bg);
+  color: var(--ink);
+}
+.lp-row select {
+  width: 132px;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 5px 6px;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  background: var(--ui-bg);
+  color: var(--ink);
+}
+.lp-foot {
+  margin-top: 12px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--ink-faint);
+}
+
 .stage {
   flex: 1 1 auto;
   display: flex;
@@ -92,10 +157,10 @@ body[data-mode="dark"] .card { box-shadow: 0 18px 48px -28px rgba(0, 0, 0, 0.8);
 .card[data-orient="v"][data-size] { --paper-h: 62vh; }
 
 .card[data-orient="v"] .title { font-size: var(--fs-title-user, 28px); margin-left: 18px; }
-.card[data-orient="v"] .body { font-size: var(--fs-body-user, 22px); margin-left: 28px; line-height: 2.2; }
+.card[data-orient="v"] .body { font-size: var(--fs-body-user, 22px); margin-left: 28px; line-height: var(--lh-body-user, 2.2); }
 
 .card[data-orient="h"] .title { font-size: var(--fs-title-user, 28px); }
-.card[data-orient="h"] .body { font-size: var(--fs-body-user, 19px); line-height: 2.05; }
+.card[data-orient="h"] .body { font-size: var(--fs-body-user, 19px); line-height: var(--lh-body-user, 2.05); }
 
 .empty { color: var(--ink-faint); font-size: 13px; text-align: center; }
 

@@ -14,9 +14,63 @@
         { "file": "蒙学/qianjiashi.json", "adapter": "qianjiashi", "collection": "千家诗", "dynasty": "唐宋", "genre": "诗" },
         { "file": "诗经/shijing.json", "adapter": "shijing", "collection": "诗经", "dynasty": "先秦", "genre": "诗" },
         { "file": "楚辞/chuci.json", "adapter": "chuci", "collection": "楚辞", "dynasty": "先秦", "genre": "楚辞" },
-        { "file": "纳兰性德/纳兰性德诗集.json", "adapter": "nalan", "collection": "纳兰词", "dynasty": "清", "genre": "词" },
         { "file": "水墨唐诗/shuimotangshi.json", "adapter": "shuimo", "collection": "水墨唐诗", "dynasty": "唐", "genre": "诗" }
       ]
+    },
+    {
+      "key": "su_shi",
+      "label": "苏轼词集",
+      "enabled": true,
+      "adapter": "ci",
+      "glob": "宋词/ci.song.*.json",
+      "authors": ["苏轼"],
+      "collection": "全宋词",
+      "dynasty": "宋",
+      "genre": "词"
+    },
+    {
+      "key": "ouyang_xiu",
+      "label": "欧阳修词集",
+      "enabled": true,
+      "adapter": "ci",
+      "glob": "宋词/ci.song.*.json",
+      "authors": ["欧阳修"],
+      "collection": "全宋词",
+      "dynasty": "宋",
+      "genre": "词"
+    },
+    {
+      "key": "xin_qiji",
+      "label": "辛弃疾词集",
+      "enabled": true,
+      "adapter": "ci",
+      "glob": "宋词/ci.song.*.json",
+      "authors": ["辛弃疾"],
+      "collection": "全宋词",
+      "dynasty": "宋",
+      "genre": "词"
+    },
+    {
+      "key": "yan_jidao",
+      "label": "晏几道词集",
+      "enabled": true,
+      "adapter": "ci",
+      "glob": "宋词/ci.song.*.json",
+      "authors": ["晏几道"],
+      "collection": "全宋词",
+      "dynasty": "宋",
+      "genre": "词"
+    },
+    {
+      "key": "wu_wenying",
+      "label": "吴文英词集",
+      "enabled": true,
+      "adapter": "ci",
+      "glob": "宋词/ci.song.*.json",
+      "authors": ["吴文英"],
+      "collection": "全宋词",
+      "dynasty": "宋",
+      "genre": "词"
     },
     {
       "key": "tang",
@@ -45,3 +99,4 @@
     "dedupe": true
   }
 }
+

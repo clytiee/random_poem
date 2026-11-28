@@ -43,6 +43,13 @@
             <option value="left">左对齐</option>
           </select>
         </label>
+        <label class="field">
+          <span>垂直对齐</span>
+          <select id="vAlign">
+            <option value="start">靠上</option>
+            <option value="center">居中</option>
+          </select>
+        </label>
       </div>
       <div class="row">
         <label class="check"><input type="checkbox" id="showMeta"> 显示作者朝代</label>
@@ -82,6 +89,16 @@
         <span>背景</span>
         <div class="bg-list" id="bg-list"></div>
       </div>
+      <div class="field">
+        <span>自定义背景图</span>
+        <div class="row bg-upload">
+          <input type="file" id="bg-file" accept="image/*">
+          <span class="hint" id="bg-file-status">未选择</span>
+          <button class="btn" id="bg-remove" hidden>移除</button>
+        </div>
+        <div class="bg-preview" id="bg-preview" hidden></div>
+        <span class="hint">本地图片，只会压缩后存到浏览器里，不会上传。设置后覆盖上面的纯色背景。</span>
+      </div>
     </section>
 
     <section class="block">
@@ -113,7 +130,11 @@
           <span>标题字号</span>
           <input id="fontSizeTitle" type="number" min="10" max="64" step="1" placeholder="自动">
         </label>
-        <span class="hint">留空为自动，由卡片尺寸决定</span>
+        <label class="field">
+          <span>行高</span>
+          <input id="lineHeight" type="number" min="1.2" max="3" step="0.1" placeholder="默认">
+        </label>
+        <span class="hint">字号留空为自动；行高留空按版式默认</span>
       </div>
       <div class="row">
         <button class="btn" id="scan-fonts">扫描本机字体</button>

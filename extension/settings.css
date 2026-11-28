@@ -171,6 +171,27 @@ select:focus, input:focus { border-color: var(--accent); }
 .bg-item[data-bg="ink"] { background: linear-gradient(155deg, #4a4b48, #23241f); color: rgba(240, 235, 220, 0.85); }
 .bg-item[data-bg="dusk"] { background: linear-gradient(155deg, #7a5548, #3b2a26); color: rgba(250, 240, 225, 0.85); }
 
+/* 自定义背景图 */
+.bg-upload {
+  margin-top: 8px;
+  align-items: center;
+}
+.bg-upload input[type="file"] {
+  font-size: 12px;
+  color: var(--ink-soft);
+  max-width: 100%;
+}
+.bg-preview {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 320px;
+  height: 96px;
+  border-radius: 8px;
+  border: 1px solid var(--ui-border);
+  background-size: cover;
+  background-position: center;
+}
+
 /* 字体 */
 .preview {
   margin-top: 16px;

@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "builtAt": "2026-11-27T11:19:25.872Z",
+  "builtAt": "2026-11-28T08:37:11.250Z",
   "shardSize": 200,
-  "total": 79856,
+  "total": 81425,
   "pools": [
     {
       "key": "core",
       "label": "精选集",
       "enabled": true,
-      "count": 1557,
+      "count": 1299,
       "shards": [
         "core/shard-000.ndjson",
         "core/shard-001.ndjson",
@@ -16,8 +16,7 @@
         "core/shard-003.ndjson",
         "core/shard-004.ndjson",
         "core/shard-005.ndjson",
-        "core/shard-006.ndjson",
-        "core/shard-007.ndjson"
+        "core/shard-006.ndjson"
       ],
       "collections": {
         "唐诗三百首": 363,
@@ -25,8 +24,74 @@
         "千家诗": 204,
         "诗经": 293,
         "楚辞": 53,
-        "纳兰词": 258,
         "水墨唐诗": 106
+      }
+    },
+    {
+      "key": "su_shi",
+      "label": "苏轼词集",
+      "enabled": true,
+      "count": 360,
+      "shards": [
+        "su_shi/shard-000.ndjson",
+        "su_shi/shard-001.ndjson"
+      ],
+      "collections": {
+        "全宋词": 360
+      }
+    },
+    {
+      "key": "ouyang_xiu",
+      "label": "欧阳修词集",
+      "enabled": true,
+      "count": 239,
+      "shards": [
+        "ouyang_xiu/shard-000.ndjson",
+        "ouyang_xiu/shard-001.ndjson"
+      ],
+      "collections": {
+        "全宋词": 239
+      }
+    },
+    {
+      "key": "xin_qiji",
+      "label": "辛弃疾词集",
+      "enabled": true,
+      "count": 627,
+      "shards": [
+        "xin_qiji/shard-000.ndjson",
+        "xin_qiji/shard-001.ndjson",
+        "xin_qiji/shard-002.ndjson",
+        "xin_qiji/shard-003.ndjson"
+      ],
+      "collections": {
+        "全宋词": 627
+      }
+    },
+    {
+      "key": "yan_jidao",
+      "label": "晏几道词集",
+      "enabled": true,
+      "count": 260,
+      "shards": [
+        "yan_jidao/shard-000.ndjson",
+        "yan_jidao/shard-001.ndjson"
+      ],
+      "collections": {
+        "全宋词": 260
+      }
+    },
+    {
+      "key": "wu_wenying",
+      "label": "吴文英词集",
+      "enabled": true,
+      "count": 341,
+      "shards": [
+        "wu_wenying/shard-000.ndjson",
+        "wu_wenying/shard-001.ndjson"
+      ],
+      "collections": {
+        "全宋词": 341
       }
     },
     {

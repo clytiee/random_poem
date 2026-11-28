@@ -1,11 +1,30 @@
 const BASE_BODY_FONT = '"Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif';
 const BASE_TITLE_FONT = '"Kaiti SC", "STKaiti", "KaiTi", "Noto Serif SC", "Songti SC", serif';
 
-export function applyBodySettings(settings) {
+/* 版式里允许整页单独覆盖的字段 */
+const LAYOUT_FIELDS = ['fontBody', 'fontTitle', 'fontSizeBody', 'fontSizeTitle', 'lineHeight', 'vAlign'];
+const fullKeyOf = k => 'full' + k[0].toUpperCase() + k.slice(1);
+
+/** 整页（展开模式）可独立设版式，未单独设过的字段回落到全局默认 */
+function layoutFor(settings, surface) {
+  if (surface !== 'full') return settings;
+  const out = { ...settings };
+  for (const k of LAYOUT_FIELDS) {
+    const v = settings[fullKeyOf(k)];
+    const empty = v === undefined || v === null || v === '' ||
+      (Number.isFinite(Number(v)) && Number(v) === 0);
+    out[k] = empty ? settings[k] : v;
+  }
+  return out;
+}
+
+export function applyBodySettings(settings, surface = 'global') {
+  settings = layoutFor(settings, surface);
   const body = document.body;
   body.dataset.style = settings.style || 'paper';
   body.dataset.orient = settings.orient || 'v';
   body.dataset.bg = settings.bg || 'none';
+  body.dataset.vAlign = settings.vAlign === 'center' ? 'center' : 'start';
   const dark = settings.darkMode === 'dark' ||
     (settings.darkMode === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
   body.dataset.mode = dark ? 'dark' : 'light';
@@ -21,6 +40,20 @@ export function applyBodySettings(settings) {
     const px = Number(value) || 0;
     if (px > 0) root.style.setProperty(prop, `${px}px`);
     else root.style.removeProperty(prop);
+  }
+
+  // 用户设定的行高：0 或空表示跟随各版式默认值
+  const lh = Number(settings.lineHeight) || 0;
+  if (lh > 0) root.style.setProperty('--lh-body-user', String(lh));
+  else root.style.removeProperty('--lh-body-user');
+
+  // 自定义背景图：有则覆盖纯色背景
+  if (settings.bgImage) {
+    root.style.setProperty('--bg-image', `url("${settings.bgImage}")`);
+    body.dataset.bgImage = '1';
+  } else {
+    root.style.removeProperty('--bg-image');
+    delete body.dataset.bgImage;
   }
 }
 
@@ -61,6 +94,10 @@ function build(card, item, settings, cap) {
   const paper = card.querySelector('.paper');
   paper.textContent = '';
 
+  // 文字块容器：竖排垂直居中时整块作为一项参与对齐（横排下退化为 display:contents）
+  const piece = document.createElement('div');
+  piece.className = 'piece';
+
   const head = document.createElement('div');
   head.className = 'head';
 
@@ -80,7 +117,8 @@ function build(card, item, settings, cap) {
     head.appendChild(byline);
   }
 
-  paper.appendChild(head);
+  piece.appendChild(head);
+  paper.appendChild(piece);
 
   const body = document.createElement('div');
   body.className = 'body';
@@ -95,14 +133,14 @@ function build(card, item, settings, cap) {
   }
 
   // 横排：注释/题解放在标题与正文之间，展开时把正文往下推；竖排仍放列末
-  paper.appendChild(body);
+  piece.appendChild(body);
 
   if (item.note && settings.showNote !== false) {
     const note = document.createElement('div');
     note.className = 'note';
     note.textContent = item.note;
     if (settings.orient === 'v') paper.appendChild(note);
-    else paper.insertBefore(note, body);
+    else piece.insertBefore(note, body);
     title.addEventListener('dblclick', () => note.classList.toggle('open'));
   }
 }

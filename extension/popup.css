@@ -135,7 +135,7 @@ body[data-surface="popup"][data-orient="h"] .top-tools {
 }
 
 body[data-surface="popup"] .paper { padding: 42px 24px 20px; }
-body[data-surface="popup"][data-orient="v"] .paper { padding: 34px 44px 20px 44px; }
+body[data-surface="popup"][data-orient="v"] .paper { padding: 34px 44px 34px 44px; }
 body[data-surface="popup"][data-orient="v"] .body { margin-left: 0; }
 /* 横排：作者跟在标题后面同一行 */
 body[data-surface="popup"][data-orient="h"] .paper { text-align: var(--align, center); }

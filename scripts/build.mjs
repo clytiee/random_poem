@@ -164,9 +164,11 @@ function collectPool(pool) {
     }
   } else if (pool.glob) {
     const adapter = adapters[pool.adapter];
+    const want = pool.authors ? new Set(pool.authors.map(a => toSimplified(a))) : null;
     for (const file of matchGlob(pool.glob)) {
       const raw = readJson(`${pool.glob.split('/')[0]}/${file}`);
       for (const base of adapter(raw, pool)) {
+        if (want && !want.has(toSimplified(String(base.author || '').trim()))) continue;
         const item = makeItem(base);
         if (item) items.push(item);
       }
